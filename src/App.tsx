@@ -1,34 +1,47 @@
 import { useState, useEffect, useCallback } from 'react'
 import './index.css'
 
-const VERSION = '1.1.0'
+const VERSION = '2.0.0'
 
-// 愛的語錄
-const loveQuotes = [
-  "Kimmy 是世界上最可愛的人 💕",
-  "遇見妳是我最大的幸運 ✨",
-  "每一天有妳都是最美好的日子 🌸",
-  "妳的笑容是我最愛的風景 😊",
-  "愛妳的心永遠不會改變 💖",
-  "妳就是我的全世界 🌍",
-  "謝謝妳一直陪在我身邊 🙏",
-  "有妳在的地方就是家 🏠",
+// 愛情 13 問 - 對應原網站的馬雅 13 問
+const loveQuestions = [
+  { id: 1, question: "我們相遇的那一刻是什麼感覺？", answer: "遇見妳的那一刻，整個世界都亮了起來 ✨", emoji: "💫" },
+  { id: 2, question: "什麼時候開始確定喜歡上妳？", answer: "當我發現每天都想見到妳的時候 💕", emoji: "💘" },
+  { id: 3, question: "我們第一次約會的回憶是？", answer: "福隆的陽光、海風、還有妳的笑容 🏖️", emoji: "🌊" },
+  { id: 4, question: "妳最讓我心動的瞬間是？", answer: "每次妳看著我笑的時候 😊", emoji: "💓" },
+  { id: 5, question: "我們一起做過最浪漫的事是？", answer: "礁溪的兩天一夜，只有我們兩個 🌙", emoji: "🏨" },
+  { id: 6, question: "我最想和妳一起完成的夢想是？", answer: "一起環遊世界，創造更多回憶 🌍", emoji: "✈️" },
+  { id: 7, question: "什麼是我們之間最珍貴的東西？", answer: "彼此的信任和無條件的愛 💝", emoji: "💎" },
+  { id: 8, question: "我最感謝妳的一件事是？", answer: "謝謝妳一直陪在我身邊，不離不棄 🙏", emoji: "🤝" },
+  { id: 9, question: "我們吵架後最快和好的秘訣是？", answer: "因為捨不得讓妳難過太久 🥺", emoji: "🫂" },
+  { id: 10, question: "未來我想給妳什麼樣的生活？", answer: "一個充滿愛、笑聲和安全感的家 🏠", emoji: "🏡" },
+  { id: 11, question: "如果用一首歌形容我們的愛情？", answer: "是那種聽了會想起妳的情歌 🎵", emoji: "🎶" },
+  { id: 12, question: "我對妳說過最真心的話是？", answer: "我愛妳，想和妳一直走下去 💕", emoji: "💌" },
+  { id: 13, question: "我如何讓妳知道我有多愛妳？", answer: "用每一天的行動，用這個網站，用一輩子 💕", emoji: "💍" },
 ]
 
-// 彩蛋訊息
-const secretMessages = [
-  { count: 5, msg: "找到第一個彩蛋！妳真的好棒！ 🎉" },
-  { count: 10, msg: "這是專屬於妳的秘密訊息 💌" },
-  { count: 20, msg: "我愛妳，Kimmy！永遠愛妳！ 💕" },
+// 約會紀錄 - 對應 Google Drive 的資料夾
+const dateMemories = [
+  { date: "2025/08/15", title: "福隆 - 第一次戶外約會", folder: "福隆" },
+  { date: "2025/08/20", title: "西門町看電影", folder: "西門町" },
+  { date: "2025/08/24", title: "基隆 - 第二次戶外約會", folder: "基隆" },
+  { date: "2025/10/03", title: "慶祝 Kimmy 生日 🎂", folder: "生日" },
+  { date: "2025/11/01-02", title: "礁溪兩天一夜", folder: "礁溪" },
+  { date: "2025/11/15", title: "開車去金瓜石", folder: "金瓜石" },
+  { date: "2025/11/21", title: "看電影 - 女孩", folder: "電影" },
+  { date: "2025/11/26", title: "桌球 - 一起運動", folder: "桌球" },
+  { date: "2025/12/05", title: "吃一蘭 & 送米去看脫口秀", folder: "一蘭" },
+  { date: "2025/12/06", title: "碧潭 - 偶像劇的地方", folder: "碧潭" },
+  { date: "2025/12/14", title: "圓覺瀑布 - 來去爬山", folder: "爬山" },
 ]
 
-// 圖騰表情
-const totems = ['💕', '💖', '💗', '💓', '💝', '🥰', '😍', '🌸', '✨', '⭐', '💐', '🌹']
+// 表情符號
+const emojis = ['💕', '💖', '💗', '💓', '💝', '🥰', '😍', '🌸', '✨', '⭐', '💐', '🌹']
 
 // 背景滾動圖騰
 function MovingTotems() {
   const rows = Array.from({ length: 12 }, (_, i) => i)
-  const totemString = totems.join(' ').repeat(20)
+  const totemString = emojis.join(' ').repeat(20)
 
   return (
     <div className="moving-totems">
@@ -45,31 +58,35 @@ function MovingTotems() {
   )
 }
 
-// Logo 組件
+// Logo 組件 - 三層動畫
 function AnimatedLogo() {
   return (
     <div className="relative w-12 h-12">
+      {/* 底層 */}
       <div className="absolute inset-0 flex items-center justify-center text-3xl">
         💕
       </div>
+      {/* 中層 - 旋轉 */}
       <div className="absolute inset-0 flex items-center justify-center text-2xl logo-spin opacity-30">
         ✨
+      </div>
+      {/* 頂層 */}
+      <div className="absolute inset-0 flex items-center justify-center text-xl opacity-50 animate-pulse">
+        💫
       </div>
     </div>
   )
 }
 
 // 圖騰組件
-function Totem({ emoji, delay = 0, size = 'normal' }: { emoji: string; delay?: number; size?: 'normal' | 'large' }) {
+function Totem({ emoji, delay = 0 }: { emoji: string; delay?: number }) {
   const [isHovered, setIsHovered] = useState(false)
-  const sizeClasses = size === 'large'
-    ? 'w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 text-4xl sm:text-5xl lg:text-6xl'
-    : 'w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 text-3xl sm:text-4xl lg:text-5xl'
 
   return (
     <div
       className={`
-        totem-brutal ${sizeClasses}
+        totem-brutal w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24
+        text-3xl sm:text-4xl lg:text-5xl
         transition-all duration-300 cursor-pointer
         ${isHovered ? 'animate-wiggle scale-110' : 'animate-float'}
       `}
@@ -82,11 +99,57 @@ function Totem({ emoji, delay = 0, size = 'normal' }: { emoji: string; delay?: n
   )
 }
 
+// 結果卡片組件
+function ResultCard({ question, index, total }: { question: typeof loveQuestions[0]; index: number; total: number }) {
+  // 檢查是否有對應的照片
+  const photoPath = `${import.meta.env.BASE_URL}photos/${String(question.id).padStart(2, '0')}.jpg`
+  const [hasPhoto, setHasPhoto] = useState(true)
+
+  return (
+    <div className="section-card max-w-2xl mx-auto mb-6">
+      <div className="flex items-center justify-center gap-2 mb-4">
+        <span className="bg-[#FF8FAB] text-white px-3 py-1 rounded-full text-sm font-bold border-2 border-black">
+          第 {index} 問 / {total}
+        </span>
+      </div>
+
+      {/* 照片區域 */}
+      <div className="mb-4">
+        {hasPhoto ? (
+          <img
+            src={photoPath}
+            alt={`回憶 ${question.id}`}
+            className="w-full h-48 sm:h-64 object-cover rounded-xl border-2 border-black"
+            onError={() => setHasPhoto(false)}
+          />
+        ) : (
+          <div className="w-full h-48 sm:h-64 bg-gradient-to-br from-pink-100 to-yellow-100 rounded-xl border-2 border-black flex items-center justify-center">
+            <span className="text-6xl">{question.emoji}</span>
+          </div>
+        )}
+      </div>
+
+      {/* 問題 */}
+      <h3 className="text-lg lg:text-xl font-bold text-gray-700 mb-3">
+        {question.question}
+      </h3>
+
+      {/* 答案 */}
+      <div className="bg-[#FFF8E7] border-2 border-black rounded-xl p-4">
+        <p className="text-xl lg:text-2xl font-bold text-gray-800">
+          {question.answer}
+        </p>
+      </div>
+    </div>
+  )
+}
+
 function App() {
+  const [currentPage, setCurrentPage] = useState<'home' | 'story' | 'dates' | 'quotes' | 'about'>('home')
   const [birthDate, setBirthDate] = useState('')
+  const [showResults, setShowResults] = useState(false)
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [clickCount, setClickCount] = useState(0)
-  const [currentQuote, setCurrentQuote] = useState(loveQuotes[0])
-  const [showResult, setShowResult] = useState(false)
   const [secretMessage, setSecretMessage] = useState('')
   const [sparkles, setSparkles] = useState<Array<{ id: number; x: number; y: number }>>([])
 
@@ -95,12 +158,6 @@ function App() {
     console.log(`%c💕 Kimmy Love Site v${VERSION} 💕`, 'color: #FF8FAB; font-size: 20px; font-weight: bold;')
     console.log('%c這是專屬於 Kimmy 的網站！', 'color: #FF6B6B; font-size: 14px;')
     console.log('%c彩蛋提示：試試多點幾下中間的愛心！', 'color: #C9B1FF; font-size: 12px;')
-  }, [])
-
-  // 隨機語錄
-  const changeQuote = useCallback(() => {
-    const newQuote = loveQuotes[Math.floor(Math.random() * loveQuotes.length)]
-    setCurrentQuote(newQuote)
   }, [])
 
   // 點擊愛心
@@ -120,17 +177,14 @@ function App() {
       setSparkles(prev => prev.filter(s => s.id !== newSparkle.id))
     }, 600)
 
-    // 檢查彩蛋
-    const secret = secretMessages.find(s => s.count === newCount)
-    if (secret) {
-      setSecretMessage(secret.msg)
-      if (newCount === 20) {
-        triggerHeartExplosion()
-      }
+    // 彩蛋
+    if (newCount === 5) setSecretMessage("找到第一個彩蛋！💕")
+    else if (newCount === 10) setSecretMessage("這是專屬於妳的秘密訊息 💌")
+    else if (newCount === 20) {
+      setSecretMessage("我愛妳，Kimmy！永遠愛妳！ 💕")
+      triggerHeartExplosion()
     }
-
-    changeQuote()
-  }, [clickCount, changeQuote])
+  }, [clickCount])
 
   // 愛心爆發
   const triggerHeartExplosion = () => {
@@ -140,7 +194,7 @@ function App() {
 
     for (let i = 0; i < 60; i++) {
       const heart = document.createElement('span')
-      heart.textContent = totems[Math.floor(Math.random() * totems.length)]
+      heart.textContent = emojis[Math.floor(Math.random() * emojis.length)]
       heart.style.cssText = `
         position:absolute;
         left:50%;top:50%;
@@ -158,10 +212,33 @@ function App() {
   // 送出結果
   const handleSubmit = () => {
     if (birthDate) {
-      setShowResult(true)
-      changeQuote()
+      setShowResults(true)
+      setCurrentQuestionIndex(0)
     }
   }
+
+  // 下一題
+  const nextQuestion = () => {
+    if (currentQuestionIndex < loveQuestions.length - 1) {
+      setCurrentQuestionIndex(prev => prev + 1)
+    }
+  }
+
+  // 上一題
+  const prevQuestion = () => {
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(prev => prev - 1)
+    }
+  }
+
+  // 導航項目
+  const navItems = [
+    { id: 'home', label: 'Kimmy好可愛', icon: '💕' },
+    { id: 'story', label: '看看我們的故事', icon: '📖' },
+    { id: 'dates', label: '紀念日', icon: '📅' },
+    { id: 'quotes', label: '愛的語錄', icon: '💌' },
+    { id: 'about', label: '關於我們', icon: '💑' },
+  ] as const
 
   return (
     <div className="min-h-screen w-full">
@@ -170,19 +247,39 @@ function App() {
       <MovingTotems />
 
       {/* Header */}
-      <header className="bg-[#FFD93D] border-b-2 border-black">
+      <header className="bg-[#FFD93D] border-b-2 border-black sticky top-0 z-50">
         <nav className="px-4 py-2 lg:px-6">
           <div className="mx-auto flex max-w-6xl items-center justify-between">
-            <a href="/" className="flex items-center gap-2">
+            <button onClick={() => { setCurrentPage('home'); setShowResults(false); }} className="flex items-center gap-2">
               <AnimatedLogo />
               <span className="text-xl lg:text-2xl font-black tracking-widest">
                 Kimmy 好可愛
               </span>
-            </a>
-            <div className="hidden lg:flex items-center gap-4">
-              <a href="#" className="px-4 py-2 font-bold hover:bg-black/10 rounded-lg transition">首頁</a>
-              <a href="#about" className="px-4 py-2 font-bold hover:bg-black/10 rounded-lg transition">關於</a>
-              <a href="#love" className="px-4 py-2 font-bold hover:bg-black/10 rounded-lg transition">愛的語錄</a>
+            </button>
+            <div className="hidden lg:flex items-center gap-2">
+              {navItems.map(item => (
+                <button
+                  key={item.id}
+                  onClick={() => { setCurrentPage(item.id); setShowResults(false); }}
+                  className={`px-4 py-2 font-bold rounded-lg transition ${
+                    currentPage === item.id ? 'bg-black/20' : 'hover:bg-black/10'
+                  }`}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+            {/* Mobile menu */}
+            <div className="lg:hidden">
+              <select
+                value={currentPage}
+                onChange={(e) => { setCurrentPage(e.target.value as typeof currentPage); setShowResults(false); }}
+                className="border-2 border-black rounded-lg px-2 py-1 bg-white"
+              >
+                {navItems.map(item => (
+                  <option key={item.id} value={item.id}>{item.icon} {item.label}</option>
+                ))}
+              </select>
             </div>
           </div>
         </nav>
@@ -190,171 +287,224 @@ function App() {
 
       {/* Main Content */}
       <main className="relative container mx-auto px-4 py-8 lg:py-12">
-        <div className="mx-auto max-w-4xl text-center">
 
-          {/* Title */}
-          <h1 className="text-[#FFD93D] text-stroke text-5xl sm:text-6xl lg:text-8xl font-black tracking-wider mb-2">
-            Kimmy 好可愛
-          </h1>
-          <h2 className="text-xl lg:text-2xl font-bold text-gray-700 mb-6">
-            用愛來告訴妳有多重要 💕
-          </h2>
+        {/* 首頁 */}
+        {currentPage === 'home' && (
+          <div className="mx-auto max-w-4xl text-center">
+            {/* Title */}
+            <h1 className="text-[#FFD93D] text-stroke text-5xl sm:text-6xl lg:text-8xl font-black tracking-wider mb-2">
+              Kimmy 好可愛
+            </h1>
+            <h2 className="text-xl lg:text-2xl font-bold text-gray-700 mb-6">
+              用愛情13問來告訴妳有多重要 💕
+            </h2>
 
-          {/* Subtitle with highlight */}
-          <div className="inline-block bg-[#FFD93D] border-2 border-black rounded-lg px-6 py-2 mb-8">
-            <span className="text-lg lg:text-xl font-black">看看專屬於妳的愛心圖盤</span>
-          </div>
-
-          {/* Date Input Section */}
-          <div className="flex flex-wrap items-center justify-center gap-4 mb-8">
-            <label className="font-bold text-gray-800">輸入妳的生日</label>
-            <input
-              type="date"
-              value={birthDate}
-              onChange={(e) => setBirthDate(e.target.value)}
-              className="date-input w-44"
-            />
-          </div>
-
-          {/* Totem Layout - Cross Pattern */}
-          <div className="my-8 lg:my-12">
-            {/* Top */}
-            <div className="flex justify-center mb-4">
-              <Totem emoji="🥰" delay={0} />
+            {/* Subtitle */}
+            <div className="inline-block bg-[#FFD93D] border-2 border-black rounded-lg px-6 py-2 mb-8">
+              <span className="text-lg lg:text-xl font-black">看看專屬於妳的愛情圖盤</span>
             </div>
 
-            {/* Middle Row */}
-            <div className="flex justify-center items-center gap-4 lg:gap-6 mb-4">
-              <Totem emoji="💝" delay={200} />
-
-              {/* Center Heart - Main Interactive */}
-              <div className="relative">
-                <button
-                  onClick={handleHeartClick}
-                  className={`
-                    totem-brutal w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28
-                    text-4xl sm:text-5xl lg:text-6xl
-                    bg-[#FFD93D] cursor-pointer
-                    transition-all duration-200
-                    hover:scale-105 active:scale-95
-                    animate-pulse-heart
-                  `}
-                >
-                  💕
-                </button>
-                {sparkles.map(sparkle => (
-                  <span
-                    key={sparkle.id}
-                    className="sparkle text-2xl"
-                    style={{ left: sparkle.x, top: sparkle.y }}
-                  >
-                    ✨
-                  </span>
-                ))}
+            {/* Date Input */}
+            {!showResults && (
+              <div className="flex flex-wrap items-center justify-center gap-4 mb-8">
+                <label className="font-bold text-gray-800">輸入妳的生日</label>
+                <input
+                  type="date"
+                  value={birthDate}
+                  onChange={(e) => setBirthDate(e.target.value)}
+                  className="date-input w-44"
+                />
               </div>
+            )}
 
-              <Totem emoji="💖" delay={200} />
-            </div>
-
-            {/* Bottom */}
-            <div className="flex justify-center">
-              <Totem emoji="😍" delay={400} />
-            </div>
-          </div>
-
-          {/* Submit Button */}
-          <button
-            onClick={handleSubmit}
-            className="btn-brutal bg-[#FFD93D] text-black px-8 py-3 text-lg"
-          >
-            送出看結果 💕
-          </button>
-
-          {/* Result Section */}
-          {showResult && (
-            <div className="section-card max-w-2xl mx-auto mt-8 animate-float">
-              <div className="flex items-center justify-center gap-2 mb-4">
-                <span className="bg-[#FF8FAB] text-white px-3 py-1 rounded-full text-sm font-bold border-2 border-black">
-                  第 1 題
-                </span>
+            {/* Totem Layout */}
+            {!showResults && (
+              <div className="my-8 lg:my-12">
+                <div className="flex justify-center mb-4">
+                  <Totem emoji="🥰" delay={0} />
+                </div>
+                <div className="flex justify-center items-center gap-4 lg:gap-6 mb-4">
+                  <Totem emoji="💝" delay={200} />
+                  <div className="relative">
+                    <button
+                      onClick={handleHeartClick}
+                      className="totem-brutal w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 text-4xl sm:text-5xl lg:text-6xl bg-[#FFD93D] cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95 animate-pulse-heart"
+                    >
+                      💕
+                    </button>
+                    {sparkles.map(sparkle => (
+                      <span key={sparkle.id} className="sparkle text-2xl" style={{ left: sparkle.x, top: sparkle.y }}>✨</span>
+                    ))}
+                  </div>
+                  <Totem emoji="💖" delay={200} />
+                </div>
+                <div className="flex justify-center">
+                  <Totem emoji="😍" delay={400} />
+                </div>
               </div>
-              <div className="text-5xl mb-4">💕</div>
-              <h3 className="text-xl lg:text-2xl font-bold text-gray-800">
-                {currentQuote}
-              </h3>
-              <button
-                onClick={changeQuote}
-                className="btn-brutal bg-[#FFD93D] mt-4"
-              >
-                換一句 ✨
+            )}
+
+            {/* Submit Button */}
+            {!showResults && (
+              <button onClick={handleSubmit} className="btn-brutal bg-[#FFD93D] text-black px-8 py-3 text-lg">
+                送出看結果 💕
               </button>
-            </div>
-          )}
+            )}
 
-          {/* Secret Message */}
-          {secretMessage && (
-            <div className="section-card max-w-2xl mx-auto mt-6 bg-gradient-to-br from-purple-100 to-pink-100">
-              <p className="text-lg font-bold text-purple-800">🎉 彩蛋發現！</p>
-              <p className="text-xl mt-2 text-purple-900">{secretMessage}</p>
-              <p className="text-sm text-gray-500 mt-2">已點擊 {clickCount} 次</p>
-            </div>
-          )}
-        </div>
+            {/* Results - 13 Questions */}
+            {showResults && (
+              <div className="mt-8">
+                <ResultCard
+                  question={loveQuestions[currentQuestionIndex]}
+                  index={currentQuestionIndex + 1}
+                  total={loveQuestions.length}
+                />
 
-        {/* Info Sections */}
-        <div className="max-w-4xl mx-auto mt-12" id="about">
-          <div className="section-card">
-            <h3 className="text-2xl font-black text-[#FFD93D] text-stroke mb-4">
-              這個網站是什麼？
-            </h3>
-            <p className="text-gray-700 leading-relaxed">
-              這是一個專屬於 Kimmy 的網站，充滿了愛與驚喜。每一個設計、每一個動畫，都是為了讓妳知道妳有多重要。
-              這裡有愛的語錄、有趣的互動，還有隱藏的彩蛋等著妳發現！
+                {/* Navigation */}
+                <div className="flex justify-center gap-4 mt-6">
+                  <button
+                    onClick={prevQuestion}
+                    disabled={currentQuestionIndex === 0}
+                    className="btn-brutal bg-white disabled:opacity-50"
+                  >
+                    ← 上一題
+                  </button>
+                  <span className="flex items-center font-bold">
+                    {currentQuestionIndex + 1} / {loveQuestions.length}
+                  </span>
+                  <button
+                    onClick={nextQuestion}
+                    disabled={currentQuestionIndex === loveQuestions.length - 1}
+                    className="btn-brutal bg-[#FFD93D] disabled:opacity-50"
+                  >
+                    下一題 →
+                  </button>
+                </div>
+
+                {/* Reset */}
+                <button
+                  onClick={() => setShowResults(false)}
+                  className="btn-brutal bg-white mt-6"
+                >
+                  重新開始 🔄
+                </button>
+              </div>
+            )}
+
+            {/* Secret Message */}
+            {secretMessage && (
+              <div className="section-card max-w-md mx-auto mt-6 bg-gradient-to-br from-purple-100 to-pink-100">
+                <p className="text-lg font-bold text-purple-800">🎉 彩蛋發現！</p>
+                <p className="text-xl mt-2 text-purple-900">{secretMessage}</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 看看我們的故事 */}
+        {currentPage === 'story' && (
+          <div className="mx-auto max-w-4xl">
+            <h1 className="text-[#FFD93D] text-stroke text-4xl lg:text-6xl font-black text-center mb-8">
+              看看我們的故事
+            </h1>
+            <p className="text-center text-gray-600 mb-8">
+              透過愛情13問，回顧我們一起走過的日子 💕
             </p>
-          </div>
 
-          <div className="section-card" id="love">
-            <h3 className="text-2xl font-black text-[#FFD93D] text-stroke mb-4">
-              「愛的語錄」可以告訴妳什麼？
-            </h3>
-            <p className="text-gray-700 leading-relaxed">
-              每一句話都是真心的。不管是開心的時候、難過的時候，都希望這些話能給妳力量。
-              點擊中間的愛心，會有不同的驚喜出現。試著多點幾下，會有更多彩蛋等著妳！
-            </p>
-          </div>
-
-          <div className="section-card">
-            <h3 className="text-xl font-bold mb-4">什麼是隱藏彩蛋？可以如何找到？</h3>
-            <p className="text-gray-700 leading-relaxed">
-              彩蛋是這個網站的秘密驚喜！試著點擊頁面上的愛心，當你點擊到特定次數時，
-              就會出現專屬於妳的秘密訊息。一共有三個彩蛋，妳能全部找到嗎？
-            </p>
-          </div>
-        </div>
-
-        {/* Bottom CTA */}
-        <div className="max-w-2xl mx-auto mt-8">
-          <div className="section-card bg-[#FFF8E7] text-center">
-            <h3 className="text-xl font-black text-[#FFD93D] text-stroke mb-4">
-              再輸入一次，看看更多愛的訊息
-            </h3>
-            <div className="flex flex-wrap items-center justify-center gap-4 mb-4">
-              <label className="font-bold text-gray-800">妳的生日</label>
-              <input
-                type="date"
-                value={birthDate}
-                onChange={(e) => setBirthDate(e.target.value)}
-                className="date-input w-44"
-              />
+            <div className="grid gap-6">
+              {loveQuestions.map((q, i) => (
+                <div key={q.id} className="section-card hover:scale-[1.02] transition-transform cursor-pointer">
+                  <div className="flex items-start gap-4">
+                    <span className="text-4xl">{q.emoji}</span>
+                    <div>
+                      <p className="text-sm text-gray-500 mb-1">第 {i + 1} 問</p>
+                      <h3 className="text-lg font-bold text-gray-800 mb-2">{q.question}</h3>
+                      <p className="text-gray-600">{q.answer}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
-            <button
-              onClick={handleSubmit}
-              className="btn-brutal bg-[#FFD93D] text-black"
-            >
-              送出看結果
-            </button>
           </div>
-        </div>
+        )}
+
+        {/* 紀念日 */}
+        {currentPage === 'dates' && (
+          <div className="mx-auto max-w-4xl">
+            <h1 className="text-[#FFD93D] text-stroke text-4xl lg:text-6xl font-black text-center mb-8">
+              紀念日 📅
+            </h1>
+            <p className="text-center text-gray-600 mb-8">
+              我們一起創造的美好回憶
+            </p>
+
+            <div className="grid gap-4">
+              {dateMemories.map((memory, i) => (
+                <div key={i} className="section-card hover:scale-[1.02] transition-transform">
+                  <div className="flex items-center gap-4">
+                    <div className="bg-[#FFD93D] border-2 border-black rounded-lg px-3 py-2 text-center min-w-[100px]">
+                      <p className="font-bold text-sm">{memory.date}</p>
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-gray-800">{memory.title}</h3>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* 愛的語錄 */}
+        {currentPage === 'quotes' && (
+          <div className="mx-auto max-w-4xl">
+            <h1 className="text-[#FFD93D] text-stroke text-4xl lg:text-6xl font-black text-center mb-8">
+              愛的語錄 💌
+            </h1>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              {loveQuestions.map((q) => (
+                <div key={q.id} className="section-card text-center hover:scale-105 transition-transform">
+                  <span className="text-4xl mb-4 block">{q.emoji}</span>
+                  <p className="text-lg font-bold text-gray-800">{q.answer}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* 關於我們 */}
+        {currentPage === 'about' && (
+          <div className="mx-auto max-w-4xl">
+            <h1 className="text-[#FFD93D] text-stroke text-4xl lg:text-6xl font-black text-center mb-8">
+              關於我們 💑
+            </h1>
+
+            <div className="section-card mb-6">
+              <h3 className="text-2xl font-black text-[#FFD93D] text-stroke mb-4">這個網站是什麼？</h3>
+              <p className="text-gray-700 leading-relaxed">
+                這是一個專屬於 Kimmy 的網站，靈感來自「人生好難」馬雅曆網站。
+                但這裡不談馬雅曆，只談我對妳的愛 💕
+              </p>
+            </div>
+
+            <div className="section-card mb-6">
+              <h3 className="text-2xl font-black text-[#FFD93D] text-stroke mb-4">「愛情13問」可以告訴妳什麼？</h3>
+              <p className="text-gray-700 leading-relaxed">
+                透過 13 個關於我們愛情的問題，讓妳知道我有多愛妳。
+                每一個問題都配上我們的約會照片，回顧我們一起走過的日子。
+              </p>
+            </div>
+
+            <div className="section-card">
+              <h3 className="text-xl font-bold mb-4">如何使用這個網站？</h3>
+              <p className="text-gray-700 leading-relaxed">
+                在首頁輸入妳的生日，然後點擊「送出看結果」，就可以看到專屬於妳的愛情13問！
+                記得多點幾下中間的愛心，會有隱藏彩蛋喔 🥚
+              </p>
+            </div>
+          </div>
+        )}
       </main>
 
       {/* Footer */}
@@ -365,13 +515,26 @@ function App() {
               <AnimatedLogo />
               <span className="font-black">Kimmy 好可愛</span>
             </div>
-            <div className="flex gap-6 text-sm">
-              <a href="#" className="hover:underline">首頁</a>
-              <a href="#about" className="hover:underline">關於</a>
-              <a href="#love" className="hover:underline">愛的語錄</a>
+
+            <div className="text-center">
+              <div className="flex flex-wrap justify-center gap-4 text-sm mb-2">
+                {navItems.map(item => (
+                  <button
+                    key={item.id}
+                    onClick={() => setCurrentPage(item.id)}
+                    className="hover:underline"
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+              <p className="text-xs text-gray-600">
+                © 2026 Kimmy 好可愛 . All Rights Reserved.
+              </p>
             </div>
+
             <div className="text-sm text-gray-700">
-              v{VERSION} • Made with 💕 for Kimmy
+              v{VERSION} • Made with 💕
             </div>
           </div>
         </div>
@@ -380,14 +543,8 @@ function App() {
       {/* Explosion Animation */}
       <style>{`
         @keyframes explode {
-          0% {
-            transform: translate(-50%, -50%) scale(0);
-            opacity: 1;
-          }
-          100% {
-            transform: translate(calc(-50% + var(--x)), calc(-50% + var(--y))) scale(1);
-            opacity: 0;
-          }
+          0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+          100% { transform: translate(calc(-50% + var(--x)), calc(-50% + var(--y))) scale(1); opacity: 0; }
         }
       `}</style>
     </div>
